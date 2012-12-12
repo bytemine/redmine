@@ -35,9 +35,11 @@ namespace :redmine do
     options[:project] = ENV['project'] if ENV['project']
     options[:tracker] = ENV['tracker'].to_i if ENV['tracker']
     options[:users] = (ENV['users'] || '').split(',').each(&:strip!)
+    options[:exclude_status] = (ENV['exclude_status'] || '').split(',').each(&:strip!)
 
     Mailer.with_synched_deliveries do
-      Mailer.reminders(options)
+      # use the CustomMailer defined in config/initializers/60-custom-reminder.rb
+      CustomMailer.reminders(options)
     end
   end
 end
