@@ -23,6 +23,8 @@ Available options:
   * tracker  => id of tracker (defaults to all trackers)
   * project  => id or identifier of project (defaults to all projects)
   * users    => comma separated list of user/group ids who should be reminded
+  * exclude_status => comma separated list of status id not to be reminded
+  * exclude_in_months => when due date is older than the number of months exclude from reminder
 
 Example:
   rake redmine:send_reminders days=7 users="1,23, 56" RAILS_ENV="production"
@@ -36,6 +38,7 @@ namespace :redmine do
     options[:tracker] = ENV['tracker'].to_i if ENV['tracker']
     options[:users] = (ENV['users'] || '').split(',').each(&:strip!)
     options[:exclude_status] = (ENV['exclude_status'] || '').split(',').each(&:strip!)
+    options[:exclude_in_months] = ENV['exclude_in_months'].to_i if ENV['exclude_in_months']
 
     Mailer.with_synched_deliveries do
       # use the CustomMailer defined in config/initializers/60-custom-reminder.rb

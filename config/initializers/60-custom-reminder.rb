@@ -13,13 +13,15 @@ class CustomMailer < Mailer
     tracker = options[:tracker] ? Tracker.find(options[:tracker]) : nil
     user_ids = options[:users]
     exclude_status = options[:exclude_status]
-
+    exclude_in_months = options[:exclude_in_months] || 999999
+    
     scope = Issue.open.where("#{Issue.table_name}.assigned_to_id IS NOT NULL" +
       " AND #{Project.table_name}.status = #{Project::STATUS_ACTIVE}" +
       " AND #{Issue.table_name}.status_id NOT IN (?)" +
-      " AND #{Issue.table_name}.due_date <= ?", (exclude_status.blank? ? '' : exclude_status), days.day.from_now.to_date
+      " AND #{Issue.table_name}.due_date <= ?" +
+      " AND #{Issue.table_name}.due_date > ?", (exclude_status.blank? ? '' : exclude_status), days.day.from_now.to_date, exclude_in_months.months.ago.to_date
     )
-
+    
     scope = scope.where(:assigned_to_id => user_ids) if user_ids.present?
     scope = scope.where(:project_id => project.id) if project
     scope = scope.where(:tracker_id => tracker.id) if tracker
